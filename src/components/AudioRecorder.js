@@ -1,68 +1,27 @@
 import { useReactMediaRecorder } from "react-media-recorder";
 import React, { useEffect, useState } from "react";
-
-
-
-// function isWavFile(wavFilename) {
-//     const ext = path.extname(wavFilename);
-//     return ext === ".wav";
-// }
-
-// function ismp3File(mp3Filename) {
-//     const ext = path.extname(mp3Filename);
-//     return ext === '.mp3';
-// }
-
-
-// function convertWavToMp3(wavFilename) {
-//     return new Promise((resolve, reject) => {
-//         if (!isWavFile(wavFilename)) {
-//             throw new Error('Not a wav file');
-//         }
-//         const outputFile = wavFilename.replace(".wav", ".mp3");
-//         ffmpeg({
-//             source: wavFilename,
-//         }).on("error", (err) => {
-//             reject(err);
-//         }).on("end", () => {
-//             resolve(outputFile);
-//         }).save(outputFile);
-//     });
-// }
-
-
-
-
+import axios from "axios"; // Import axios to make HTTP requests
 
 const AudioRecorder = (props) => {
     const [second, setSecond] = useState("00");
     const [minute, setMinute] = useState("00");
     const [isActive, setIsActive] = useState(false);
     const [counter, setCounter] = useState(0);
+    const [mediaBlob, setMediaBlob] = useState(null); // State to store the audio Blob
+
     useEffect(() => {
         let intervalId;
-
         if (isActive) {
             intervalId = setInterval(() => {
                 const secondCounter = counter % 60;
                 const minuteCounter = Math.floor(counter / 60);
 
-                let computedSecond =
-                    String(secondCounter).length === 1
-                        ? `0${secondCounter}`
-                        : secondCounter;
-                let computedMinute =
-                    String(minuteCounter).length === 1
-                        ? `0${minuteCounter}`
-                        : minuteCounter;
+                setSecond(secondCounter < 10 ? `0${secondCounter}` : secondCounter);
+                setMinute(minuteCounter < 10 ? `0${minuteCounter}` : minuteCounter);
 
-                setSecond(computedSecond);
-                setMinute(computedMinute);
-
-                setCounter((counter) => counter + 1);
+                setCounter((prevCounter) => prevCounter + 1);
             }, 1000);
         }
-
         return () => clearInterval(intervalId);
     }, [isActive, counter]);
 
@@ -72,6 +31,7 @@ const AudioRecorder = (props) => {
         setSecond("00");
         setMinute("00");
     }
+
     const {
         status,
         startRecording,
@@ -84,20 +44,36 @@ const AudioRecorder = (props) => {
         echoCancellation: true
     });
 
-    // if (isWavFile(mediaBlobUrl)) {
-    //     console.log("This is a wav file");
-    //     console.log(mediaBlobUrl);
-    // }
+    // Convert mediaBlobUrl to a Blob and store it in state
+    useEffect(() => {
+        const fetchBlob = async () => {
+            if (mediaBlobUrl) {
+                const response = await fetch(mediaBlobUrl);
+                const blob = await response.blob();
+                setMediaBlob(blob); // Save blob to state
+            }
+        };
+        fetchBlob();
+    }, [mediaBlobUrl]);
 
-    // convertWavToMp3(mediaBlobUrl);
+    // Function to submit the audio blob to the server
+    const submitRecording = async () => {
+        if (mediaBlob) {
+            const formData = new FormData();
+            formData.append("file", mediaBlob, "recording.mp3");
 
-    // if (ismp3File(mediaBlobUrl)) {
-    //     console.log("This is a mp3 file");
-    //     console.log(mediaBlobUrl);
-    // }
-
-    console.log("url", mediaBlobUrl);
-
+            try {
+                const response = await axios.post("YOUR_API_ENDPOINT", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                console.log("Upload successful:", response.data);
+            } catch (error) {
+                console.error("Error uploading audio:", error);
+            }
+        }
+    };
 
     return (
         <div className="border border-black bg-black max-w-lg mx-auto p-4 sm:p-6 rounded-lg shadow-lg">
@@ -108,7 +84,7 @@ const AudioRecorder = (props) => {
             </div>
 
             <div className="h-[200px] flex items-center justify-center bg-gray-800 rounded-md my-4 shadow-md">
-                <video src={mediaBlobUrl} controls loop className="w-full h-full rounded-md" />
+                <audio src={mediaBlobUrl} controls loop className="w-full h-full rounded-md" />
             </div>
 
             <div className="flex flex-col items-center bg-gray-900 text-white p-4 rounded-lg shadow-md">
@@ -148,16 +124,16 @@ const AudioRecorder = (props) => {
                             onClick={() => {
                                 stopRecording();
                                 pauseRecording();
+                                submitRecording(); // Submit the recording after stopping
                             }}
                         >
-                            Stop
+                            Stop & Submit
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     );
-
-
 };
+
 export default AudioRecorder;
