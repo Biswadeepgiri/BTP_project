@@ -100,63 +100,64 @@ const AudioRecorder = (props) => {
 
 
     return (
-        <div className="border border-black bg-black w-[700px] h-[350px]">
-            <div className="border border-[#bd9f61] h-[70px] bg-[#bd9f61] flex items-center">
-                <h4 className="ml-2 capitalize font-sans text-lg text-white">
+        <div className="border border-black bg-black max-w-lg mx-auto p-4 sm:p-6 rounded-lg shadow-lg">
+            <div className="border border-[#bd9f61] h-[70px] bg-gradient-to-r from-yellow-500 to-orange-400 flex items-center justify-between px-4 rounded-t-lg">
+                <h4 className="capitalize font-sans text-lg sm:text-xl text-white">
                     {status}
                 </h4>
             </div>
-            <div className="h-[38px]">
-                <video src={mediaBlobUrl} controls loop className="w-full h-full" />
+
+            <div className="h-[200px] flex items-center justify-center bg-gray-800 rounded-md my-4 shadow-md">
+                <video src={mediaBlobUrl} controls loop className="w-full h-full rounded-md" />
             </div>
 
-            <div className="col-md-6 col-md-offset-3 bg-black text-white ml-[357px]">
+            <div className="flex flex-col items-center bg-gray-900 text-white p-4 rounded-lg shadow-md">
                 <button
-                    className="bg-black rounded-lg text-white"
+                    className="bg-gray-800 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition-colors duration-200 mb-4 w-1/2 sm:w-1/3"
                     onClick={stopTimer}
                 >
                     Clear
                 </button>
-                <div className="ml-16 text-6xl flex items-center">
+
+                <div className="text-3xl sm:text-5xl flex items-center justify-center space-x-1 mb-4">
                     <span className="minute">{minute}</span>
                     <span>:</span>
                     <span className="second">{second}</span>
                 </div>
 
-                <div className="ml-5 flex items-center">
-                    <label className="text-sm font-normal" htmlFor="icon-button-file">
-                        <h3 className="ml-4 font-normal">
-                            Press the Start to record
-                        </h3>
-                        <div>
-                            <button
-                                className="px-8 py-3 ml-4 text-lg cursor-pointer rounded-md font-bold bg-[#42b72a] text-white transition-transform transform hover:scale-105"
-                                onClick={() => {
-                                    if (!isActive) {
-                                        startRecording();
-                                    } else {
-                                        pauseRecording();
-                                    }
-                                    setIsActive(!isActive);
-                                }}
-                            >
-                                {isActive ? "Pause" : "Start"}
-                            </button>
-                            <button
-                                className="px-8 py-3 ml-4 text-lg cursor-pointer rounded-md font-bold bg-[#df3636] text-white transition-transform transform hover:scale-105"
-                                onClick={() => {
-                                    stopRecording();
+                <div className="flex flex-col items-center text-center">
+                    <h3 className="text-lg font-normal mb-2 text-yellow-300">
+                        Press Start to begin recording
+                    </h3>
+                    <div className="flex space-x-4">
+                        <button
+                            className="px-6 py-3 bg-green-500 text-white font-bold rounded-md shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-green-600 focus:ring focus:ring-green-300"
+                            onClick={() => {
+                                if (!isActive) {
+                                    startRecording();
+                                } else {
                                     pauseRecording();
-                                }}
-                            >
-                                Stop
-                            </button>
-                        </div>
-                    </label>
+                                }
+                                setIsActive(!isActive);
+                            }}
+                        >
+                            {isActive ? "Pause" : "Start"}
+                        </button>
+                        <button
+                            className="px-6 py-3 bg-red-500 text-white font-bold rounded-md shadow-lg transform transition-transform duration-300 hover:scale-105 hover:bg-red-600 focus:ring focus:ring-red-300"
+                            onClick={() => {
+                                stopRecording();
+                                pauseRecording();
+                            }}
+                        >
+                            Stop
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     );
+
 
 };
 export default AudioRecorder;
