@@ -63,7 +63,7 @@ const AudioRecorder = (props) => {
             formData.append("file", mediaBlob, "recording.mp3");
 
             try {
-                const response = await axios.post("YOUR_API_ENDPOINT", formData, {
+                const response = await axios.post("http://localhost:8080/student/upload/song1", formData, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
